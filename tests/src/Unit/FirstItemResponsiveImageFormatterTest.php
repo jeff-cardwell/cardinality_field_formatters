@@ -11,6 +11,14 @@
 namespace Drupal\Tests\cardinality_field_formatters\Unit;
 
 use Drupal\Tests\UnitTestCase;
+use Drupal\cardinality_field_formatters\Plugin\Field\FieldFormatter\FirstItemResponsiveImageFormatter;
+
+use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Utility\LinkGeneratorInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 
 /**
  * Demonstrates how to write tests.
@@ -19,14 +27,21 @@ use Drupal\Tests\UnitTestCase;
  */
 class FirstItemResponsiveImageFormatterTest extends UnitTestCase {
 
+  public $mockFormatter;
 
-  /**
-   * @var \Drupal\cardinality_field_formatters\Plugin\Field\FieldFormatter\FirstItemResponsiveImageFormatter
-   */
-  public $CustomImageFormatter;
+  public $testFormatter;
 
   public function setUp() {
-    $this->CustomImageFormatter = new \Drupal\cardinality_field_formatters\Plugin\Field\FieldFormatter\FirstItemResponsiveImageFormatter();
+
+    $this->mockFormatter = $this->getMockBuilder('Drupal\cardinality_field_formatters\Plugin\Field\FieldFormatter\FirstItemResponsiveImageFormatter')
+      ->disableOriginalConstructor()
+      ->getMock();
+
+    $this->mockFormatter->expects($this->any())->method('settingsSummary')
+      ->willReturn([1 => 'first_item']);
+
+    //$this->testFormatter = new FirstItemResponsiveImageFormatter();
+
   }
 
   /**
@@ -34,11 +49,13 @@ class FirstItemResponsiveImageFormatterTest extends UnitTestCase {
    */
   public function testdefaultSettings() {
 
+
     // Confirm that 0C = 32F.
-    $testArray = ($this->CustomImageFormatter->defaultSettings());
+    $testArray = $this->mockFormatter->settingsSummary();
     $lasttestArrayItem = array_pop($testArray);
 
-    $this->assertEquals('first_item', $lasttestArrayItem);
+    $this->assertEquals('some_item', $lasttestArrayItem);
+
   }
 
 
