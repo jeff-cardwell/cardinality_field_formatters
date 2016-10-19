@@ -1,0 +1,12 @@
+name: Custom Field Formatters
+description: Extends a few core field types
+package: Custom
+
+type: module
+core: 8.x
+
+dependencies:
+  - drupal:responsive_image
+  - drupal:field
+
+configure: cardinality_field_formatters.settings

@@ -1,0 +1,126 @@
+<?php
+
+namespace Drupal\cardinality_field_formatters\Plugin\Field\FieldFormatter;
+
+use Drupal\responsive_image\Plugin\Field\FieldFormatter\ResponsiveImageFormatter;
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
+
+
+/**
+ * @FieldFormatter(
+ *   id = "first_item_responsive_image_formatter",
+ *   label = @Translation("Responsive Image - First Item"),
+ *   description = @Translation("Show only the first image using Reponsive Image"),
+ *   field_types = {
+ *     "image"
+ *   }
+ * )
+ */
+
+
+class FirstItemResponsiveImageFormatter extends ResponsiveImageFormatter {
+
+  public static function defaultSettings() {
+    return array(
+      'responsive_image_style' => '',
+      'image_link' => '',
+      'first_item' => '',
+    ) + parent::defaultSettings();
+  }
+
+  public function settingsForm(array $form, FormStateInterface $form_state) {
+
+    $elements= parent::settingsForm($form, $form_state);
+
+
+    $elements['first_item'] = array(
+      '#title' => t('Display only the first item'),
+      '#type' => 'checkbox',
+      '#default_value' => $this->getSetting('first_item'),
+    );
+
+    return $elements;
+  }
+
+  public function settingsSummary() {
+
+    $summary = parent::settingsSummary();
+
+    if ($this->getSetting('first_item')) {
+      $summary[] = t('First Item Only');
+    }
+    
+    return $summary;
+  }
+
+  public function viewElements(FieldItemListInterface $items, $langcode) {
+    $elements = array();
+    $files = $this->getEntitiesToView($items, $langcode);
+
+    // Early opt-out if the field is empty.
+    if (empty($files)) {
+      return $elements;
+    }
+
+    $url = NULL;
+    // Check if the formatter involves a link.
+    if ($this->getSetting('image_link') == 'content') {
+      $entity = $items->getEntity();
+      if (!$entity->isNew()) {
+        $url = $entity->urlInfo();
+      }
+    }
+    elseif ($this->getSetting('image_link') == 'file') {
+      $link_file = TRUE;
+    }
+
+    // Collect cache tags to be added for each item in the field.
+    $responsive_image_style = $this->responsiveImageStyleStorage->load($this->getSetting('responsive_image_style'));
+    $image_styles_to_load = array();
+    $cache_tags = [];
+    if ($responsive_image_style) {
+      $cache_tags = Cache::mergeTags($cache_tags, $responsive_image_style->getCacheTags());
+      $image_styles_to_load = $responsive_image_style->getImageStyleIds();
+    }
+
+    $image_styles = $this->imageStyleStorage->loadMultiple($image_styles_to_load);
+    foreach ($image_styles as $image_style) {
+      $cache_tags = Cache::mergeTags($cache_tags, $image_style->getCacheTags());
+    }
+
+    if ($this->getSetting('first_item')) {
+      // Truncates the array down to only retaining the first item
+      $files = array_slice($files, 0, 1, true);
+    }
+
+    foreach ($files as $delta => $file) {
+      // Link the <picture> element to the original file.
+      if (isset($link_file)) {
+        $url = file_url_transform_relative(file_create_url($file->getFileUri()));
+      }
+      // Extract field item attributes for the theme function, and unset them
+      // from the $item so that the field template does not re-render them.
+      $item = $file->_referringItem;
+      $item_attributes = $item->_attributes;
+      unset($item->_attributes);
+
+      $elements[$delta] = array(
+        //'#theme' => 'responsive_image_formatter',
+        '#theme' => 'responsive_image_formatter__first_item',
+        '#item' => $item,
+        '#item_attributes' => $item_attributes,
+        '#responsive_image_style_id' => $responsive_image_style ? $responsive_image_style->id() : '',
+        '#url' => $url,
+        '#cache' => array(
+          'tags' => $cache_tags,
+        ),
+      );
+    }
+
+    return $elements;
+  }
+
+}
