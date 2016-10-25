@@ -1,5 +1,10 @@
 <?php
 
+use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\Field\FormatterInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Entity\Entity\EntityViewDisplay;
+
 /**
  * Implements hook_theme_suggestions_alter().
  */
@@ -9,7 +14,103 @@ function cardinality_field_formatters_theme_suggestions_alter(array &$suggestion
     $suggestions[] = $hook . '__' . 'first_item';
   }
 
-  /*if (in_array($hook, array('field', 'field__image'))) {
-    kint($variables);
-  }*/
 };
+
+
+/**
+ * Implements hook_field_formatter_third_party_settings_form().
+ */
+function cardinality_field_formatters_field_formatter_third_party_settings_form(FormatterInterface $plugin, FieldDefinitionInterface $field_definition, $view_mode, $form, FormStateInterface $form_state) {
+
+  $field_storage_cardinality = $field_definition->getFieldStorageDefinition()->getCardinality();
+
+  // -1 is for unlimited, otherwise indicates the number of allowed instances of the field in storage
+  if ($field_storage_cardinality <> 1) {
+    $element['constrain_cardinality'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Constrain Cardinality of Displayed Fields'),
+      '#default_value' => $plugin->getThirdPartySetting('cardinality_field_formatters', 'constrain_cardinality'),
+    );
+
+    $element['start_index'] = array(
+        '#type' => 'textfield',
+        '#title' => 'First Index of Fields to Display (start at 0)',
+        '#size' => '10',
+        '#default_value' => $plugin->getThirdPartySetting('cardinality_field_formatters', 'start_index'),
+        '#states' => array(
+          'visible' => array(
+            ':input[name="fields[' . $field_definition->getName() . '][settings_edit_form][third_party_settings][cardinality_field_formatters][constrain_cardinality]"]' => array('checked' => TRUE),
+          ),
+        ),
+
+    );
+
+    $element['field_count'] = array(
+      '#type' => 'textfield',
+      '#title' => 'Maximum Number of Fields to Display',
+      '#size' => '10',
+      '#default_value' => $plugin->getThirdPartySetting('cardinality_field_formatters', 'field_count'),
+      '#states' => array(
+        'visible' => array(
+          ':input[name="fields[' . $field_definition->getName() . '][settings_edit_form][third_party_settings][cardinality_field_formatters][constrain_cardinality]"]' => array('checked' => TRUE),
+        ),
+      ),
+    );
+
+
+    return $element;
+  }
+
+}
+
+
+/**
+ * Implements hook_field_formatter_settings_summary_alter().
+ */
+function cardinality_field_formatters_field_formatter_settings_summary_alter(array &$summary, $context) {
+
+  if ($context['formatter']->getThirdPartySetting('cardinality_field_formatters', 'constrain_cardinality')) {
+
+    $start_index = $context['formatter']->getThirdPartySetting('cardinality_field_formatters', 'start_index');
+    $field_count = $context['formatter']->getThirdPartySetting('cardinality_field_formatters', 'field_count');
+
+
+    $summary[] = t('Displaying a maximum of ' . $field_count . ' fields, beginning at the index of ' . $start_index);
+  }
+
+}
+
+/**
+ * Implements hook_preprocess_field().
+ */
+
+function cardinality_field_formatters_preprocess_field(&$variables) {
+
+  $preserve_array_indexes = TRUE;
+
+  $field_storage_cardinality = $variables['element']['#items']->getFieldDefinition()->getFieldStorageDefinition()->getCardinality();
+
+  $entity = $variables['element']['#object'];
+  $view_mode = $variables['element']['#view_mode'];
+  $field_name = $variables['element']['#field_name'];
+
+  if ($field_storage_cardinality <> 1){
+    // get the field formatter settings...
+    $entity_display = EntityViewDisplay::collectRenderDisplay($entity, $view_mode);
+    $field_display = $entity_display->getComponent($field_name);
+
+    // make the setting available in the field template
+    //$variables['my_module_my_setting'] = $field_display['third_party_settings']['cardinality_field_formatters']['constrain_cardinality'];
+
+    $cardinality_setting = $field_display['third_party_settings']['cardinality_field_formatters']['constrain_cardinality'];
+    $start_index = $field_display['third_party_settings']['cardinality_field_formatters']['start_index'];
+    $field_count = $field_display['third_party_settings']['cardinality_field_formatters']['field_count'];
+
+    if ($cardinality_setting == '1') {
+      $variables['items'] = array_slice($variables['items'], $start_index, $field_count, $preserve_array_indexes);
+    }
+
+  }
+
+
+}

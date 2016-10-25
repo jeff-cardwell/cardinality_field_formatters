@@ -27,36 +27,53 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
  */
 class FirstItemResponsiveImageFormatterTest extends UnitTestCase {
 
+
+  /**
+   * @var \Drupal\cardinality_field_formatters\Plugin\Field\FieldFormatter\FirstItemResponsiveImageFormatter;
+   */
+
   public $mockFormatter;
 
   public $testFormatter;
 
   public function setUp() {
 
-    $this->mockFormatter = $this->getMockBuilder('Drupal\cardinality_field_formatters\Plugin\Field\FieldFormatter\FirstItemResponsiveImageFormatter')
-      ->disableOriginalConstructor()
-      ->getMock();
+    //$this->testFormatter = new \Drupal\cardinality_field_formatters\Plugin\Field\FieldFormatter\FirstItemResponsiveImageFormatter();
 
-    $this->mockFormatter->expects($this->any())->method('settingsSummary')
-      ->willReturn([1 => 'first_item']);
+    //$this->mockFormatter = $this->getMockBuilder('FirstItemResponsiveImageFormatter')
+      //->setMethods(null)
+      //->disableOriginalConstructor()
+      //->getMock();
+
+    //$mockFormatter->expects($this->any())->method('settingsSummary')
+    //  ->willReturn([1 => 'first_item']);
 
     //$this->testFormatter = new FirstItemResponsiveImageFormatter();
+
+    /*$stub = $this->getMockBuilder('ClassA')
+      ->setMethods(array('getResultFromRemoteServer'))
+      ->disableOriginalConstructor()
+      ->getMock();
+    $stub->expects($this->any())
+      ->method('getResultFromRemoteServer')
+      ->will($this->returnValue('Poodle'));
+    $stub->__construct('dog52');*/
 
   }
 
   /**
    * A simple test that tests our defaultSettings() function.
    */
-  public function testdefaultSettings() {
+  //public function testdefaultSettings() {
 
 
     // Confirm that 0C = 32F.
-    $testArray = $this->mockFormatter->settingsSummary();
-    $lasttestArrayItem = array_pop($testArray);
+    //$testArray = $this->mockFormatter->settingsSummary();
+    //$lasttestArrayItem = array_pop($testArray);
 
-    $this->assertEquals('some_item', $lasttestArrayItem);
+    //$this->assertEquals('some_item', $lasttestArrayItem);
 
-  }
+  //}
 
 
 }
