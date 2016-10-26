@@ -5,6 +5,9 @@ use Drupal\Core\Field\FormatterInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
 
+
+use Drupal\cardinality_field_formatters\CardinalityFieldFormattersFormElementValidation;
+
 /**
  * Implements hook_theme_suggestions_alter().
  */
@@ -24,32 +27,38 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
 
   $field_storage_cardinality = $field_definition->getFieldStorageDefinition()->getCardinality();
 
+  $instance_of_my_class = new CardinalityFieldFormattersFormElementValidation();
+
   // -1 is for unlimited, otherwise indicates the number of allowed instances of the field in storage
   if ($field_storage_cardinality <> 1) {
     $element['constrain_cardinality'] = array(
       '#type' => 'checkbox',
       '#title' => t('Constrain Cardinality of Displayed Fields'),
       '#default_value' => $plugin->getThirdPartySetting('cardinality_field_formatters', 'constrain_cardinality'),
+
+      //'#element_validate' => array('myElementValidator'),
+      //'#element_validate' => '::myElementValidator',
     );
 
     $element['start_index'] = array(
-        '#type' => 'textfield',
-        '#title' => 'First Index of Fields to Display (start at 0)',
-        '#size' => '10',
-        '#default_value' => $plugin->getThirdPartySetting('cardinality_field_formatters', 'start_index'),
-        '#states' => array(
-          'visible' => array(
-            ':input[name="fields[' . $field_definition->getName() . '][settings_edit_form][third_party_settings][cardinality_field_formatters][constrain_cardinality]"]' => array('checked' => TRUE),
-          ),
+      '#type' => 'number',
+      '#title' => 'Offset from first item',
+      //'#size' => '10',
+      '#default_value' => $plugin->getThirdPartySetting('cardinality_field_formatters', 'start_index'),
+      '#element_validate' => array(array($instance_of_my_class, 'startIndexValidator')),
+      '#states' => array(
+        'visible' => array(
+          ':input[name="fields[' . $field_definition->getName() . '][settings_edit_form][third_party_settings][cardinality_field_formatters][constrain_cardinality]"]' => array('checked' => TRUE),
         ),
-
+      ),
     );
 
     $element['field_count'] = array(
-      '#type' => 'textfield',
+      '#type' => 'number',
       '#title' => 'Maximum Number of Fields to Display',
-      '#size' => '10',
+      //'#size' => '10',
       '#default_value' => $plugin->getThirdPartySetting('cardinality_field_formatters', 'field_count'),
+      '#element_validate' => array(array($instance_of_my_class, 'fieldCountValidator')),
       '#states' => array(
         'visible' => array(
           ':input[name="fields[' . $field_definition->getName() . '][settings_edit_form][third_party_settings][cardinality_field_formatters][constrain_cardinality]"]' => array('checked' => TRUE),
@@ -64,6 +73,17 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
 }
 
 
+//'#element_validate' => array('myElementValidator'),
+function myElementValidator(array &$element, FormStateInterface &$form_state) {
+
+  //dpm($element);
+
+  $form_state->setErrorByName('start_index', 'Test Error');
+
+}
+
+
+
 /**
  * Implements hook_field_formatter_settings_summary_alter().
  */
@@ -74,8 +94,7 @@ function cardinality_field_formatters_field_formatter_settings_summary_alter(arr
     $start_index = $context['formatter']->getThirdPartySetting('cardinality_field_formatters', 'start_index');
     $field_count = $context['formatter']->getThirdPartySetting('cardinality_field_formatters', 'field_count');
 
-
-    $summary[] = t('Displaying a maximum of ' . $field_count . ' fields, beginning at the index of ' . $start_index);
+    $summary[] = t('Displaying a maximum of @field_count items, using an offset of @start_index from the first item', array('@field_count' => $field_count, '@start_index' => $start_index));
   }
 
 }
