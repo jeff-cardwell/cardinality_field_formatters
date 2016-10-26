@@ -23,7 +23,7 @@ function cardinality_field_formatters_theme_suggestions_alter(array &$suggestion
 /**
  * Implements hook_field_formatter_third_party_settings_form().
  */
-function cardinality_field_formatters_field_formatter_third_party_settings_form(FormatterInterface $plugin, FieldDefinitionInterface $field_definition, $view_mode, $form, FormStateInterface $form_state) {
+function cardinality_field_formatters_field_formatter_third_party_settings_form(FormatterInterface $formatter_plugin, FieldDefinitionInterface $field_definition, $view_mode, $form, FormStateInterface $form_state) {
 
   $field_storage_cardinality = $field_definition->getFieldStorageDefinition()->getCardinality();
 
@@ -31,21 +31,25 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
 
   // -1 is for unlimited, otherwise indicates the number of allowed instances of the field in storage
   if ($field_storage_cardinality <> 1) {
+
     $element['constrain_cardinality'] = array(
       '#type' => 'checkbox',
       '#title' => t('Constrain Cardinality of Displayed Fields'),
-      '#default_value' => $plugin->getThirdPartySetting('cardinality_field_formatters', 'constrain_cardinality'),
-
-      //'#element_validate' => array('myElementValidator'),
-      //'#element_validate' => '::myElementValidator',
+      '#default_value' => $formatter_plugin->getThirdPartySetting('cardinality_field_formatters', 'constrain_cardinality'),
     );
+
+    $current_start_index_setting = $formatter_plugin->getThirdPartySetting('cardinality_field_formatters', 'start_index');
+    dpm($current_start_index_setting);
+    $default_start_index_setting = isset($current_start_index_setting) ? $current_start_index_setting : 0;
 
     $element['start_index'] = array(
       '#type' => 'number',
-      '#title' => 'Offset from first item',
+      '#title' => 'Offset From First Item',
+      '#required' => TRUE,
       //'#size' => '10',
-      '#default_value' => $plugin->getThirdPartySetting('cardinality_field_formatters', 'start_index'),
+      '#default_value' => $default_start_index_setting,
       '#element_validate' => array(array($instance_of_my_class, 'startIndexValidator')),
+      //'#element_validate' => array('myElementValidator'),
       '#states' => array(
         'visible' => array(
           ':input[name="fields[' . $field_definition->getName() . '][settings_edit_form][third_party_settings][cardinality_field_formatters][constrain_cardinality]"]' => array('checked' => TRUE),
@@ -53,19 +57,22 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
       ),
     );
 
-    $element['field_count'] = array(
+    $current_desired_item_count_setting = $formatter_plugin->getThirdPartySetting('cardinality_field_formatters', 'desired_item_count');
+    $default_desired_item_count_setting = isset($current_desired_item_count_setting) ? $current_desired_item_count_setting : 1;
+
+    $element['desired_item_count'] = array(
       '#type' => 'number',
       '#title' => 'Maximum Number of Fields to Display',
+      '#required' => TRUE,
       //'#size' => '10',
-      '#default_value' => $plugin->getThirdPartySetting('cardinality_field_formatters', 'field_count'),
-      '#element_validate' => array(array($instance_of_my_class, 'fieldCountValidator')),
+      '#default_value' => $default_desired_item_count_setting,
+      '#element_validate' => array(array($instance_of_my_class, 'desiredItemCountValidator')),
       '#states' => array(
         'visible' => array(
           ':input[name="fields[' . $field_definition->getName() . '][settings_edit_form][third_party_settings][cardinality_field_formatters][constrain_cardinality]"]' => array('checked' => TRUE),
         ),
       ),
     );
-
 
     return $element;
   }
@@ -73,28 +80,17 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
 }
 
 
-//'#element_validate' => array('myElementValidator'),
-function myElementValidator(array &$element, FormStateInterface &$form_state) {
-
-  //dpm($element);
-
-  $form_state->setErrorByName('start_index', 'Test Error');
-
-}
-
-
-
 /**
  * Implements hook_field_formatter_settings_summary_alter().
  */
-function cardinality_field_formatters_field_formatter_settings_summary_alter(array &$summary, $context) {
+function cardinality_field_formatters_field_formatter_settings_summary_alter(array &$summary, array $context) {
 
   if ($context['formatter']->getThirdPartySetting('cardinality_field_formatters', 'constrain_cardinality')) {
 
-    $start_index = $context['formatter']->getThirdPartySetting('cardinality_field_formatters', 'start_index');
-    $field_count = $context['formatter']->getThirdPartySetting('cardinality_field_formatters', 'field_count');
+    $first_item = $context['formatter']->getThirdPartySetting('cardinality_field_formatters', 'start_index') + 1;
+    $desired_item_count = $context['formatter']->getThirdPartySetting('cardinality_field_formatters', 'desired_item_count');
 
-    $summary[] = t('Displaying a maximum of @field_count items, using an offset of @start_index from the first item', array('@field_count' => $field_count, '@start_index' => $start_index));
+    $summary[] = t('Displaying a maximum of @desired_item_count items, beginning with item @start_index', array('@desired_item_count' => $desired_item_count, '@start_index' => $first_item));
   }
 
 }
@@ -103,9 +99,9 @@ function cardinality_field_formatters_field_formatter_settings_summary_alter(arr
  * Implements hook_preprocess_field().
  */
 
-function cardinality_field_formatters_preprocess_field(&$variables) {
+function cardinality_field_formatters_preprocess_field(array &$variables) {
 
-  $preserve_array_indexes = TRUE;
+
 
   $field_storage_cardinality = $variables['element']['#items']->getFieldDefinition()->getFieldStorageDefinition()->getCardinality();
 
@@ -121,12 +117,27 @@ function cardinality_field_formatters_preprocess_field(&$variables) {
     // make the setting available in the field template
     //$variables['my_module_my_setting'] = $field_display['third_party_settings']['cardinality_field_formatters']['constrain_cardinality'];
 
-    $cardinality_setting = $field_display['third_party_settings']['cardinality_field_formatters']['constrain_cardinality'];
-    $start_index = $field_display['third_party_settings']['cardinality_field_formatters']['start_index'];
-    $field_count = $field_display['third_party_settings']['cardinality_field_formatters']['field_count'];
 
-    if ($cardinality_setting == '1') {
-      $variables['items'] = array_slice($variables['items'], $start_index, $field_count, $preserve_array_indexes);
+    $third_party_cardinality_setting = $field_display['third_party_settings']['cardinality_field_formatters']['constrain_cardinality'];
+    $start_index = $field_display['third_party_settings']['cardinality_field_formatters']['start_index'];
+    $desired_item_count = $field_display['third_party_settings']['cardinality_field_formatters']['desired_item_count'];
+
+    $existing_item_count = count($variables['items']);
+    $last_item_index = $existing_item_count - 1;
+
+    //@TODO this isn't right, should store 0 as a value and not need this
+    //$start_index = ( "" == $start_index) ? "0" : $start_index;
+
+    $adjusted_start_index = min($start_index, $last_item_index);
+    $adjusted_desired_item_count = min($desired_item_count, ($existing_item_count-$adjusted_start_index));
+
+    $preserve_array_indexes = TRUE;
+
+    //dpm($start_index);
+    //dpm($adjusted_start_index);
+
+    if ($third_party_cardinality_setting == '1') {
+      $variables['items'] = array_slice($variables['items'], $adjusted_start_index, $adjusted_desired_item_count, $preserve_array_indexes);
     }
 
   }
