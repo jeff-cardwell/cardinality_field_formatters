@@ -27,44 +27,41 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
 
   $field_storage_cardinality = $field_definition->getFieldStorageDefinition()->getCardinality();
 
-  $instance_of_my_class = new CardinalityFieldFormattersFormElementValidation();
-
   // -1 is for unlimited, otherwise indicates the number of allowed instances of the field in storage
   if ($field_storage_cardinality <> 1) {
+
+    $instance_of_my_class = new CardinalityFieldFormattersFormElementValidation();
+
+    $default_constrain_cardinality = $formatter_plugin->getThirdPartySetting('cardinality_field_formatters', 'constrain_cardinality');
+
+    $current_start_index_setting = $formatter_plugin->getThirdPartySetting('cardinality_field_formatters', 'start_index');
+    $default_start_index_setting = isset($current_start_index_setting) ? $current_start_index_setting : 0;
+
+    $current_desired_item_count_setting = $formatter_plugin->getThirdPartySetting('cardinality_field_formatters', 'desired_item_count');
+    $default_desired_item_count_setting = isset($current_desired_item_count_setting) ? $current_desired_item_count_setting : 1;
 
     $element['constrain_cardinality'] = array(
       '#type' => 'checkbox',
       '#title' => t('Constrain Cardinality of Displayed Fields'),
-      '#default_value' => $formatter_plugin->getThirdPartySetting('cardinality_field_formatters', 'constrain_cardinality'),
+      '#default_value' => $default_constrain_cardinality,
     );
-
-    $current_start_index_setting = $formatter_plugin->getThirdPartySetting('cardinality_field_formatters', 'start_index');
-    dpm($current_start_index_setting);
-    $default_start_index_setting = isset($current_start_index_setting) ? $current_start_index_setting : 0;
-
+    
     $element['start_index'] = array(
       '#type' => 'number',
       '#title' => 'Offset From First Item',
-      '#required' => TRUE,
-      //'#size' => '10',
       '#default_value' => $default_start_index_setting,
       '#element_validate' => array(array($instance_of_my_class, 'startIndexValidator')),
-      //'#element_validate' => array('myElementValidator'),
       '#states' => array(
         'visible' => array(
           ':input[name="fields[' . $field_definition->getName() . '][settings_edit_form][third_party_settings][cardinality_field_formatters][constrain_cardinality]"]' => array('checked' => TRUE),
         ),
       ),
-    );
 
-    $current_desired_item_count_setting = $formatter_plugin->getThirdPartySetting('cardinality_field_formatters', 'desired_item_count');
-    $default_desired_item_count_setting = isset($current_desired_item_count_setting) ? $current_desired_item_count_setting : 1;
+    );
 
     $element['desired_item_count'] = array(
       '#type' => 'number',
       '#title' => 'Maximum Number of Fields to Display',
-      '#required' => TRUE,
-      //'#size' => '10',
       '#default_value' => $default_desired_item_count_setting,
       '#element_validate' => array(array($instance_of_my_class, 'desiredItemCountValidator')),
       '#states' => array(
@@ -72,6 +69,7 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
           ':input[name="fields[' . $field_definition->getName() . '][settings_edit_form][third_party_settings][cardinality_field_formatters][constrain_cardinality]"]' => array('checked' => TRUE),
         ),
       ),
+
     );
 
     return $element;
@@ -125,16 +123,10 @@ function cardinality_field_formatters_preprocess_field(array &$variables) {
     $existing_item_count = count($variables['items']);
     $last_item_index = $existing_item_count - 1;
 
-    //@TODO this isn't right, should store 0 as a value and not need this
-    //$start_index = ( "" == $start_index) ? "0" : $start_index;
-
     $adjusted_start_index = min($start_index, $last_item_index);
     $adjusted_desired_item_count = min($desired_item_count, ($existing_item_count-$adjusted_start_index));
 
     $preserve_array_indexes = TRUE;
-
-    //dpm($start_index);
-    //dpm($adjusted_start_index);
 
     if ($third_party_cardinality_setting == '1') {
       $variables['items'] = array_slice($variables['items'], $adjusted_start_index, $adjusted_desired_item_count, $preserve_array_indexes);
