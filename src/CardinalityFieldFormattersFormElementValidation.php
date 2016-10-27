@@ -13,19 +13,43 @@ class CardinalityFieldFormattersFormElementValidation {
   function validateCardinalityConstraint (array &$element, FormStateInterface &$form_state) {
 
     $element_name = $element['#name'];
+    $element_title = $element['#title'];
     $element_value = $element['#value'];
+
+    // minimum numeric value allowed
     $lower_limit = $element['#min'];
 
-    $constrain_cardinality = $form_state->getValue(array('fields','field_test_number_field','settings_edit_form','third_party_settings','cardinality_field_formatters','constrain_cardinality'));
+    // gets the index of the sibling #element that will provide the value used to
+    // determine if we will validate
+    $element_needed_to_choose_to_validate = $element['#element_needed_for_element_validate'];
 
-    if ($constrain_cardinality == "1") {
+    // gets the necessary value to determine if we validate
+    $element_value_needed_to_choose_to_validate = $element['#element_value_needed_for_element_validate'];
+
+
+
+    // get the array of parent indexes to current element, which is the element #validate_element is called from
+    $elements_parents_array = $element['#parents'];
+
+    // uses the array of parent indexes and substitutes the final #element with the #element that is providing
+    // the value that determines whether we will validate
+    $elements_parents_array[count($elements_parents_array)-1] = $element_needed_to_choose_to_validate;
+
+    // gets value of the #element from current form_state that determines whether we will validate
+    $validation_determinator_value = $form_state->getValue($elements_parents_array);
+
+    if ($validation_determinator_value == $element_value_needed_to_choose_to_validate) {
       if ($this->valueIsBlankString($element_value)) {
-        $form_state->setErrorByName($element_name, t('"@name" must have a value.', array('@name' => $element['#title'])));
+        $form_state->setErrorByName($element_name, t('"@title" must have a value.',
+          array(
+          '@title' => $element_title
+        )));
       }
 
       if ($this->belowLowerLimit($element_value, $lower_limit)) {
-        $form_state->setErrorByName($element_name, t('"@name" must be greater than or equal to @lower_limit.', array(
-          '@name' => $element['#title'],
+        $form_state->setErrorByName($element_name, t('"@title" must be greater than or equal to @lower_limit.',
+          array(
+          '@title' => $element_title,
           '@lower_limit' => $lower_limit
         )));
       }
@@ -43,9 +67,9 @@ class CardinalityFieldFormattersFormElementValidation {
 
   }
 
-  protected function valueIsBlankString ($number_to_test) {
+  protected function valueIsBlankString ($value_to_test) {
 
-    return ($number_to_test == "") ? TRUE : FALSE;
+    return ($value_to_test == "") ? TRUE : FALSE;
 
   }
 
