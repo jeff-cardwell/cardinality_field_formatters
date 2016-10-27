@@ -10,7 +10,7 @@ class CardinalityFieldFormattersFormElementValidation {
    *
    */
 
-  function validateCardinalityConstraint (array &$element, FormStateInterface &$form_state) {
+  public static function validateCardinalityConstraint (array &$element, FormStateInterface &$form_state) {
 
     $element_name = $element['#name'];
     $element_title = $element['#title'];
@@ -39,14 +39,14 @@ class CardinalityFieldFormattersFormElementValidation {
     $validation_determinator_value = $form_state->getValue($elements_parents_array);
 
     if ($validation_determinator_value == $element_value_needed_to_choose_to_validate) {
-      if ($this->valueIsBlankString($element_value)) {
+      if (self::valueIsBlankString($element_value)) {
         $form_state->setErrorByName($element_name, t('"@title" must have a value.',
           array(
           '@title' => $element_title
         )));
       }
 
-      if ($this->belowLowerLimit($element_value, $lower_limit)) {
+      if (self::belowLowerLimit($element_value, $lower_limit)) {
         $form_state->setErrorByName($element_name, t('"@title" must be greater than or equal to @lower_limit.',
           array(
           '@title' => $element_title,
