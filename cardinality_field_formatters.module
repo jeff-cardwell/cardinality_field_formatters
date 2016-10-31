@@ -30,8 +30,8 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
   // -1 is for unlimited, otherwise indicates the number of allowed instances of the field in storage
   if ($field_storage_cardinality <> 1) {
 
-    $instance_of_my_class = new CardinalityFieldFormattersFormElementValidation();
-    
+    //$instance_of_my_class = new CardinalityFieldFormattersFormElementValidation();
+
     // get current values for our form elements
     $current_constrain_cardinality = $formatter_plugin->getThirdPartySetting('cardinality_field_formatters', 'constrain_cardinality');
     $default_start_index_setting = $formatter_plugin->getThirdPartySetting('cardinality_field_formatters', 'start_index');
@@ -57,7 +57,7 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
         ),
       ),
       '#element_validate' => array(
-        array($instance_of_my_class, 'validateCardinalityConstraint')
+        array('Drupal\cardinality_field_formatters\CardinalityFieldFormattersFormElementValidation', 'validateCardinalityConstraint')
       ),
       '#cardinality_field_formatters_validation_determinator' => 'constrain_cardinality',
       '#cardinality_field_formatters_validation_determinator_true_value' => "1",
@@ -75,7 +75,7 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
         ),
       ),
       '#element_validate' => array(
-        array($instance_of_my_class, 'validateCardinalityConstraint')
+        array('Drupal\cardinality_field_formatters\CardinalityFieldFormattersFormElementValidation', 'validateCardinalityConstraint')
       ),
       '#cardinality_field_formatters_validation_determinator' => 'constrain_cardinality',
       '#cardinality_field_formatters_validation_determinator_true_value' => "1",
