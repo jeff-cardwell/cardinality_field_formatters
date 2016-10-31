@@ -31,13 +31,14 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
   if ($field_storage_cardinality <> 1) {
 
     $instance_of_my_class = new CardinalityFieldFormattersFormElementValidation();
-
+    
+    // get current values for our form elements
     $current_constrain_cardinality = $formatter_plugin->getThirdPartySetting('cardinality_field_formatters', 'constrain_cardinality');
-
     $default_start_index_setting = $formatter_plugin->getThirdPartySetting('cardinality_field_formatters', 'start_index');
-    $current_start_index_setting = isset($default_start_index_setting) ? $default_start_index_setting : 0;
-
     $default_desired_item_count_setting = $formatter_plugin->getThirdPartySetting('cardinality_field_formatters', 'desired_item_count');
+
+    // if our start_index and desired_item_count don't have settings yet, preset them to a value
+    $current_start_index_setting = isset($default_start_index_setting) ? $default_start_index_setting : 0;
     $current_desired_item_count_setting = isset($default_desired_item_count_setting) ? $default_desired_item_count_setting : 1;
 
     $element['constrain_cardinality'] = array(
