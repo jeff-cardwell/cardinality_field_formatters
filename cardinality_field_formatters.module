@@ -55,7 +55,10 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
           ':input[name="fields[' . $field_definition->getName() . '][settings_edit_form][third_party_settings][cardinality_field_formatters][constrain_cardinality]"]' => array('checked' => TRUE),
         ),
       ),
-      '#element_validate' => array(array($instance_of_my_class, 'validateCardinalityConstraint')),
+      '#element_validate' => array(
+        array('\Drupal\Core\Render\Element\Number', 'validateNumber'),
+        array($instance_of_my_class, 'validateCardinalityConstraint')
+      ),
       '#element_needed_for_element_validate' => 'constrain_cardinality',
       '#element_value_needed_for_element_validate' => "1",
       '#min' => 0,
@@ -71,7 +74,10 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
           ':input[name="fields[' . $field_definition->getName() . '][settings_edit_form][third_party_settings][cardinality_field_formatters][constrain_cardinality]"]' => array('checked' => TRUE),
         ),
       ),
-      '#element_validate' => array(array($instance_of_my_class, 'validateCardinalityConstraint')),
+      '#element_validate' => array(
+        array('\Drupal\Core\Render\Element\Number', 'validateNumber'),
+        array($instance_of_my_class, 'validateCardinalityConstraint')
+      ),
       '#element_needed_for_element_validate' => 'constrain_cardinality',
       '#element_value_needed_for_element_validate' => "1",
       '#min' => 1,
@@ -94,7 +100,8 @@ function cardinality_field_formatters_field_formatter_settings_summary_alter(arr
     $first_item = $context['formatter']->getThirdPartySetting('cardinality_field_formatters', 'start_index') + 1;
     $desired_item_count = $context['formatter']->getThirdPartySetting('cardinality_field_formatters', 'desired_item_count');
 
-    $summary[] = t('Displaying a maximum of @desired_item_count items, beginning with item @start_index', array('@desired_item_count' => $desired_item_count, '@start_index' => $first_item));
+    $summary[] = t('Displaying a maximum of @desired_item_count items, beginning with item @first_item',
+      array('@desired_item_count' => $desired_item_count, '@first_item' => $first_item));
   }
 
 }
