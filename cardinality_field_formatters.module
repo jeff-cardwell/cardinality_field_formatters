@@ -56,11 +56,10 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
         ),
       ),
       '#element_validate' => array(
-        array('\Drupal\Core\Render\Element\Number', 'validateNumber'),
         array($instance_of_my_class, 'validateCardinalityConstraint')
       ),
-      '#element_needed_for_element_validate' => 'constrain_cardinality',
-      '#element_value_needed_for_element_validate' => "1",
+      '#cardinality_field_formatters_validation_determinator' => 'constrain_cardinality',
+      '#cardinality_field_formatters_validation_determinator_true_value' => "1",
       '#min' => 0,
 
     );
@@ -75,11 +74,10 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
         ),
       ),
       '#element_validate' => array(
-        array('\Drupal\Core\Render\Element\Number', 'validateNumber'),
         array($instance_of_my_class, 'validateCardinalityConstraint')
       ),
-      '#element_needed_for_element_validate' => 'constrain_cardinality',
-      '#element_value_needed_for_element_validate' => "1",
+      '#cardinality_field_formatters_validation_determinator' => 'constrain_cardinality',
+      '#cardinality_field_formatters_validation_determinator_true_value' => "1",
       '#min' => 1,
 
     );
