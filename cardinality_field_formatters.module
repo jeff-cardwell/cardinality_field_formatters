@@ -32,24 +32,24 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
 
     $instance_of_my_class = new CardinalityFieldFormattersFormElementValidation();
 
-    $default_constrain_cardinality = $formatter_plugin->getThirdPartySetting('cardinality_field_formatters', 'constrain_cardinality');
+    $current_constrain_cardinality = $formatter_plugin->getThirdPartySetting('cardinality_field_formatters', 'constrain_cardinality');
 
-    $current_start_index_setting = $formatter_plugin->getThirdPartySetting('cardinality_field_formatters', 'start_index');
-    $default_start_index_setting = isset($current_start_index_setting) ? $current_start_index_setting : 0;
+    $default_start_index_setting = $formatter_plugin->getThirdPartySetting('cardinality_field_formatters', 'start_index');
+    $current_start_index_setting = isset($default_start_index_setting) ? $default_start_index_setting : 0;
 
-    $current_desired_item_count_setting = $formatter_plugin->getThirdPartySetting('cardinality_field_formatters', 'desired_item_count');
-    $default_desired_item_count_setting = isset($current_desired_item_count_setting) ? $current_desired_item_count_setting : 1;
+    $default_desired_item_count_setting = $formatter_plugin->getThirdPartySetting('cardinality_field_formatters', 'desired_item_count');
+    $current_desired_item_count_setting = isset($default_desired_item_count_setting) ? $default_desired_item_count_setting : 1;
 
     $element['constrain_cardinality'] = array(
       '#type' => 'checkbox',
       '#title' => t('Constrain Cardinality of Displayed Fields'),
-      '#default_value' => $default_constrain_cardinality,
+      '#default_value' => $current_constrain_cardinality,
     );
 
     $element['start_index'] = array(
       '#type' => 'number',
       '#title' => 'Offset From First Item',
-      '#default_value' => $default_start_index_setting,
+      '#default_value' => $current_start_index_setting,
       '#states' => array(
         'visible' => array(
           ':input[name="fields[' . $field_definition->getName() . '][settings_edit_form][third_party_settings][cardinality_field_formatters][constrain_cardinality]"]' => array('checked' => TRUE),
@@ -65,7 +65,7 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
     $element['desired_item_count'] = array(
       '#type' => 'number',
       '#title' => 'Maximum Number of Fields to Display',
-      '#default_value' => $default_desired_item_count_setting,
+      '#default_value' => $current_desired_item_count_setting,
       '#states' => array(
         'visible' => array(
           ':input[name="fields[' . $field_definition->getName() . '][settings_edit_form][third_party_settings][cardinality_field_formatters][constrain_cardinality]"]' => array('checked' => TRUE),
