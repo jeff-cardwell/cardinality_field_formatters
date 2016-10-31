@@ -5,12 +5,14 @@ namespace Drupal\cardinality_field_formatters;
 use Drupal\Core\Form\FormStateInterface;
 
 class CardinalityFieldFormattersFormElementValidation {
-  
+
+
+
   /**
    *
    */
 
-  public static function validateCardinalityConstraint (array &$element, FormStateInterface &$form_state) {
+  public function validateCardinalityConstraint (array &$element, FormStateInterface &$form_state) {
 
     $element_name = $element['#name'];
     $element_title = $element['#title'];
@@ -25,8 +27,6 @@ class CardinalityFieldFormattersFormElementValidation {
 
     // gets the necessary value to determine if we validate
     $element_value_needed_to_choose_to_validate = $element['#element_value_needed_for_element_validate'];
-
-
 
     // get the array of parent indexes to current element, which is the element #validate_element is called from
     $elements_parents_array = $element['#parents'];
@@ -58,7 +58,7 @@ class CardinalityFieldFormattersFormElementValidation {
 
   }
 
-  protected function belowLowerLimit($number_to_test, $lower_limit) {
+  protected static function belowLowerLimit($number_to_test, $lower_limit) {
 
     $number_to_test = intval($number_to_test);
     $lower_limit = intval($lower_limit);
@@ -67,7 +67,7 @@ class CardinalityFieldFormattersFormElementValidation {
 
   }
 
-  protected function valueIsBlankString ($value_to_test) {
+  protected static function valueIsBlankString ($value_to_test) {
 
     return ($value_to_test == "") ? TRUE : FALSE;
 
