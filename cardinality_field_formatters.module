@@ -25,10 +25,11 @@ function cardinality_field_formatters_theme_suggestions_alter(array &$suggestion
  */
 function cardinality_field_formatters_field_formatter_third_party_settings_form(FormatterInterface $formatter_plugin, FieldDefinitionInterface $field_definition, $view_mode, $form, FormStateInterface $form_state) {
 
-  $field_storage_cardinality = $field_definition->getFieldStorageDefinition()->getCardinality();
+  $field_storage_cardinality = $field_definition->getFieldStorageDefinition()->isMultiple();
+  $field_storage_cardinality_is_multiple = $field_definition->getFieldStorageDefinition()->isMultiple();
 
   // -1 is for unlimited, otherwise indicates the number of allowed instances of the field in storage
-  if ($field_storage_cardinality <> 1) {
+  if ($field_storage_cardinality_is_multiple) {
 
     //$instance_of_my_class = new CardinalityFieldFormattersFormElementValidation();
 
@@ -99,8 +100,11 @@ function cardinality_field_formatters_field_formatter_settings_summary_alter(arr
     $first_item = $context['formatter']->getThirdPartySetting('cardinality_field_formatters', 'start_index') + 1;
     $desired_item_count = $context['formatter']->getThirdPartySetting('cardinality_field_formatters', 'desired_item_count');
 
-    $summary[] = t('Displaying a maximum of @desired_item_count items, beginning with item @first_item',
-      array('@desired_item_count' => $desired_item_count, '@first_item' => $first_item));
+    $summary[] = \Drupal::translation()->formatPlural($desired_item_count,
+      'Displaying @count item, beginning with item @first_item',
+      'Displaying a maximum of @count items, beginning with item @first_item',
+      array('@first_item' => $first_item));
+
   }
 
 }
@@ -111,15 +115,13 @@ function cardinality_field_formatters_field_formatter_settings_summary_alter(arr
 
 function cardinality_field_formatters_preprocess_field(array &$variables) {
 
-
-
-  $field_storage_cardinality = $variables['element']['#items']->getFieldDefinition()->getFieldStorageDefinition()->getCardinality();
+  $field_storage_cardinality_is_multiple = $variables['element']['#items']->getFieldDefinition()->getFieldStorageDefinition()->isMultiple();
 
   $entity = $variables['element']['#object'];
   $view_mode = $variables['element']['#view_mode'];
   $field_name = $variables['element']['#field_name'];
 
-  if ($field_storage_cardinality <> 1){
+  if ($field_storage_cardinality_is_multiple){
     // get the field formatter settings...
     $entity_display = EntityViewDisplay::collectRenderDisplay($entity, $view_mode);
     $field_display = $entity_display->getComponent($field_name);
