@@ -40,14 +40,14 @@ class CardinalityFieldFormattersFormElementValidation {
 
   protected static function setFormStateErrorIfBlank(array $element, FormStateInterface &$form_state){
 
-    $element_name = $element['#name'];
-    $element_title = $element['#title'];
-    $element_value = $element['#value'];
+    $form_element_name = $element['#name'];
+    $form_element_title = $element['#title'];
+    $form_element_value = $element['#value'];
 
-    if (self::isBlankString($element_value)) {
-      $form_state->setErrorByName($element_name, t('"@title" must have a value.',
+    if (self::isBlankString($form_element_value)) {
+      $form_state->setErrorByName($form_element_name, t('"@title" must have a value.',
         array(
-          '@title' => $element_title
+          '@title' => $form_element_title
         )));
     }
 
