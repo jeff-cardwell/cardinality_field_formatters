@@ -97,8 +97,8 @@ function cardinality_field_formatters_field_formatter_settings_summary_alter(arr
 
     $summary[] = \Drupal::translation()->formatPlural($desired_item_count,
       'Displaying 1 item, beginning with item @first_item',
-      'Displaying a maximum of @count items, beginning with item %first_item',
-      array('%first_item' => $first_item));
+      'Displaying a maximum of @count items, beginning with item @first_item',
+      array('@first_item' => $first_item));
 
   }
 
