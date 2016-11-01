@@ -126,18 +126,20 @@ function cardinality_field_formatters_preprocess_field(array &$variables) {
     $entity_display = EntityViewDisplay::collectRenderDisplay($entity, $view_mode);
     $field_display = $entity_display->getComponent($field_name);
 
-    // make the setting available in the field template
-    //$variables['my_module_my_setting'] = $field_display['third_party_settings']['cardinality_field_formatters']['constrain_cardinality'];
-
-
+    // get the field formatter values
     $third_party_cardinality_setting = $field_display['third_party_settings']['cardinality_field_formatters']['constrain_cardinality'];
     $start_index = $field_display['third_party_settings']['cardinality_field_formatters']['start_index'];
     $desired_item_count = $field_display['third_party_settings']['cardinality_field_formatters']['desired_item_count'];
 
+    // find the array index of the last field item
     $existing_item_count = count($variables['items']);
     $last_item_index = $existing_item_count - 1;
 
+    // if the start_index specified is higher than the last item index, set to last item index
     $adjusted_start_index = min($start_index, $last_item_index);
+
+    // if the desired item count is greater than the available remaining items when starting from the adjusted
+    // start index, adjust to only include the remaining available items
     $adjusted_desired_item_count = min($desired_item_count, ($existing_item_count-$adjusted_start_index));
 
     $preserve_array_indexes = TRUE;
