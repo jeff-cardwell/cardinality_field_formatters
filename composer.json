@@ -1,5 +1,5 @@
 {
-  "name": "drupal/cardinality_field_formatters",
+  "name": "jeff-cardwell/cardinality_field_formatters",
   "description": "This is a test module.",
   "type": "drupal-module",
   "license": "GPL-2.0+"
