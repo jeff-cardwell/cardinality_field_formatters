@@ -10,6 +10,7 @@ use Drupal\Core\Entity\Entity\EntityViewDisplay;
  */
 
 function cardinality_field_formatters_theme_suggestions_alter(array &$suggestions, array $variables, $hook) {
+
   if (in_array($hook, array('node', 'responsive_image_formatter__first_item'))) {
     $suggestions[] = $hook . '__' . 'first_item';
   }
@@ -56,7 +57,6 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
       '#cardinality_field_formatters_validation_determinator' => 'constrain_cardinality',
       '#cardinality_field_formatters_validation_determinator_true_value' => "1",
       '#min' => 0,
-
     );
 
     $element['desired_item_count'] = array(
@@ -74,7 +74,6 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
       '#cardinality_field_formatters_validation_determinator' => 'constrain_cardinality',
       '#cardinality_field_formatters_validation_determinator_true_value' => "1",
       '#min' => 1,
-
     );
 
     return $element;
@@ -97,9 +96,9 @@ function cardinality_field_formatters_field_formatter_settings_summary_alter(arr
     $desired_item_count = $context['formatter']->getThirdPartySetting('cardinality_field_formatters', 'desired_item_count');
 
     $summary[] = \Drupal::translation()->formatPlural($desired_item_count,
-      'Displaying @count item, beginning with item @first_item',
-      'Displaying a maximum of @count items, beginning with item @first_item',
-      array('@first_item' => $first_item));
+      'Displaying 1 item, beginning with item @first_item',
+      'Displaying a maximum of @count items, beginning with item %first_item',
+      array('%first_item' => $first_item));
 
   }
 
