@@ -6,14 +6,6 @@ use Drupal\responsive_image\Plugin\Field\FieldFormatter\ResponsiveImageFormatter
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 
-
-use Drupal\Core\Entity\EntityStorageInterface;
-use Drupal\Core\Field\FieldDefinitionInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\Utility\LinkGeneratorInterface;
-
-
 /**
  * @FieldFormatter(
  *   id = "first_item_responsive_image_formatter",
