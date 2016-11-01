@@ -5,9 +5,6 @@ use Drupal\Core\Field\FormatterInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
 
-
-use Drupal\cardinality_field_formatters\CardinalityFieldFormattersFormElementValidation;
-
 /**
  * Implements hook_theme_suggestions_alter().
  */
