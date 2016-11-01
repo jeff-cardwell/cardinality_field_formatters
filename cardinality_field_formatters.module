@@ -25,13 +25,9 @@ function cardinality_field_formatters_theme_suggestions_alter(array &$suggestion
  */
 function cardinality_field_formatters_field_formatter_third_party_settings_form(FormatterInterface $formatter_plugin, FieldDefinitionInterface $field_definition, $view_mode, $form, FormStateInterface $form_state) {
 
-  $field_storage_cardinality = $field_definition->getFieldStorageDefinition()->isMultiple();
   $field_storage_cardinality_is_multiple = $field_definition->getFieldStorageDefinition()->isMultiple();
 
-  // -1 is for unlimited, otherwise indicates the number of allowed instances of the field in storage
   if ($field_storage_cardinality_is_multiple) {
-
-    //$instance_of_my_class = new CardinalityFieldFormattersFormElementValidation();
 
     // get current values for our form elements
     $current_constrain_cardinality = $formatter_plugin->getThirdPartySetting('cardinality_field_formatters', 'constrain_cardinality');
@@ -95,9 +91,12 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
  */
 function cardinality_field_formatters_field_formatter_settings_summary_alter(array &$summary, array $context) {
 
+  // check if constrain_cardinality checkbox setting is true
   if ($context['formatter']->getThirdPartySetting('cardinality_field_formatters', 'constrain_cardinality')) {
 
+    // since index of first item is what is stored, first item is start_index + 1
     $first_item = $context['formatter']->getThirdPartySetting('cardinality_field_formatters', 'start_index') + 1;
+
     $desired_item_count = $context['formatter']->getThirdPartySetting('cardinality_field_formatters', 'desired_item_count');
 
     $summary[] = \Drupal::translation()->formatPlural($desired_item_count,
@@ -144,7 +143,9 @@ function cardinality_field_formatters_preprocess_field(array &$variables) {
 
     $preserve_array_indexes = TRUE;
 
-    if ($third_party_cardinality_setting == '1') {
+    // check if constrain_cardinality checkbox setting is true
+    if ($third_party_cardinality_setting) {
+      // slice the field item array according to the cardinality settings
       $variables['items'] = array_slice($variables['items'], $adjusted_start_index, $adjusted_desired_item_count, $preserve_array_indexes);
     }
 
