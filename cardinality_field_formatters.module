@@ -46,6 +46,7 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
       '#type' => 'number',
       '#title' => 'Offset From First Item',
       '#default_value' => $current_start_index_setting,
+      '#min' => 0,
       '#states' => array(
         'visible' => array(
           ':input[name="fields[' . $field_definition->getName() . '][settings_edit_form][third_party_settings][cardinality_field_formatters][constrain_cardinality]"]' => array('checked' => TRUE),
@@ -56,13 +57,13 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
       ),
       '#cardinality_field_formatters_validation_determinator' => 'constrain_cardinality',
       '#cardinality_field_formatters_validation_determinator_true_value' => "1",
-      '#min' => 0,
     );
 
     $element['desired_item_count'] = array(
       '#type' => 'number',
       '#title' => 'Maximum Number of Fields to Display',
       '#default_value' => $current_desired_item_count_setting,
+      '#min' => 1,
       '#states' => array(
         'visible' => array(
           ':input[name="fields[' . $field_definition->getName() . '][settings_edit_form][third_party_settings][cardinality_field_formatters][constrain_cardinality]"]' => array('checked' => TRUE),
@@ -73,7 +74,6 @@ function cardinality_field_formatters_field_formatter_third_party_settings_form(
       ),
       '#cardinality_field_formatters_validation_determinator' => 'constrain_cardinality',
       '#cardinality_field_formatters_validation_determinator_true_value' => "1",
-      '#min' => 1,
     );
 
     return $element;
