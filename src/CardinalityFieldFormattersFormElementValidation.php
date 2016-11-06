@@ -30,7 +30,7 @@ class CardinalityFieldFormattersFormElementValidation {
     // gets form_state value of the #element that determines whether we will validate
     $validation_determinator_value = $form_state->getValue($elements_parents_array);
 
-    if ($validation_determinator_value == $element_value_needed_to_choose_to_validate) {
+    if ($validation_determinator_value === $element_value_needed_to_choose_to_validate) {
 
       self::setFormStateErrorIfBlank($element, $form_state);
       Number::validateNumber($element, $form_state, $complete_form);
@@ -56,7 +56,7 @@ class CardinalityFieldFormattersFormElementValidation {
 
   protected static function isBlankString ($value_to_test) {
 
-    return ($value_to_test == "") ? TRUE : FALSE;
+    return ($value_to_test === "") ? TRUE : FALSE;
   }
 
 }
